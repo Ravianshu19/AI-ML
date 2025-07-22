@@ -1,5 +1,5 @@
 # AI-ML
-# 🧠 Advanced LLM Projects — Ravianshu19
+# 🧠 Advanced LLM Projects 
 
 Welcome to my collection of hands-on projects using cutting-edge Large Language Models (LLMs). This repo showcases how I’ve explored LLMs for generative AI, agentic tasks, code generation, chatbot development, and workflow automation.
 
