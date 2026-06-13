@@ -16,6 +16,7 @@ A collection of AI and Machine Learning projects covering Generative AI, LLMs, A
 | 06 | [**Agentic AI**](./06-Agentic-AI/) | AI agent implementation using Agentic AI patterns | Python, Agentic AI |
 | 07 | [**Agentic Research Workflow**](./07-Agentic-Research-Workflow/) | Multi-step research agent with LangGraph/CrewAI + observability | LangGraph, CrewAI, LangSmith, Langfuse |
 | 08 | [**End-to-End ML Platform**](./08-End-to-End-ML-Platform/) | Feature store, model registry, CI/CD, drift monitoring | Feast, MLflow, Evidently AI, FastAPI |
+| 09 | [**Anomaly Detection Streaming**](./09-Anomaly-Detection-Streaming/) | Real-time anomaly detection with online learning | River, Half-Space Trees, Streamlit |
 
 ---
 
@@ -23,11 +24,12 @@ A collection of AI and Machine Learning projects covering Generative AI, LLMs, A
 
 - **Languages:** Python
 - **Frameworks:** LangChain, LangGraph, CrewAI, FastAPI
-- **AI/ML:** Transformers, GANs, LLMs, Scikit-learn
+- **AI/ML:** Transformers, GANs, LLMs, Scikit-learn, River
 - **MLOps:** Feast, MLflow, Evidently AI, Docker
+- **Streaming:** Online Learning, Half-Space Trees, EWMA
 - **Observability:** LangSmith, Langfuse
 - **CI/CD:** GitHub Actions
-- **Tools:** Jupyter Notebooks, Typer, Rich
+- **Tools:** Jupyter Notebooks, Typer, Rich, Streamlit
 
 ## 📜 License
 

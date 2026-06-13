@@ -1,0 +1,71 @@
+# ─── Streaming Anomaly Detection Configuration ───
+
+project:
+  name: streaming-anomaly-detection
+  description: "Real-time anomaly detection on sensor/log data with online learning"
+
+# ─── Data Stream Settings ───
+stream:
+  # Sensor stream
+  sensor:
+    num_sensors: 5
+    sample_interval_ms: 100          # Generate a reading every 100ms
+    noise_std: 0.5
+    anomaly_probability: 0.02        # 2% chance of injecting an anomaly
+    anomaly_magnitude: 5.0           # How extreme anomalies are (in std devs)
+    drift_rate: 0.001                # Gradual concept drift rate
+
+  # Log stream
+  log:
+    events_per_second: 10
+    anomaly_probability: 0.03
+    services:
+      - api-gateway
+      - auth-service
+      - payment-service
+      - user-service
+      - notification-service
+
+# ─── Detector Settings ───
+detectors:
+  # Half-Space Trees (online anomaly detector from River)
+  half_space_trees:
+    enabled: true
+    n_trees: 25
+    height: 8
+    window_size: 250
+    seed: 42
+
+  # Online EWMA (Exponentially Weighted Moving Average)
+  ewma:
+    enabled: true
+    alpha: 0.05                      # Smoothing factor (lower = slower adaptation)
+    threshold_sigmas: 3.0            # Alert if deviation > N sigmas
+    warmup_period: 100               # Samples before alerting
+
+  # Rolling Z-Score
+  zscore:
+    enabled: true
+    window_size: 200
+    threshold: 3.0
+
+  # Ensemble
+  ensemble:
+    method: "majority_vote"          # majority_vote, weighted_average, any
+    min_detectors_agree: 2
+
+# ─── Alerting ───
+alerts:
+  enabled: true
+  cooldown_seconds: 30               # Min seconds between alerts for same source
+  severity_levels:
+    low: 0.5
+    medium: 0.7
+    high: 0.9
+
+# ─── Dashboard ───
+dashboard:
+  host: "localhost"
+  port: 8501
+  max_points_displayed: 500
+  refresh_interval_ms: 200
