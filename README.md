@@ -15,15 +15,18 @@ A collection of AI and Machine Learning projects covering Generative AI, LLMs, A
 | 05 | [**Synthetic Medical Records (GANs)**](./05-Synthetic-Medical-Data/) | Generating synthetic medical records using GANs | Python, GANs, Healthcare AI |
 | 06 | [**Agentic AI**](./06-Agentic-AI/) | AI agent implementation using Agentic AI patterns | Python, Agentic AI |
 | 07 | [**Agentic Research Workflow**](./07-Agentic-Research-Workflow/) | Multi-step research agent with LangGraph/CrewAI + observability | LangGraph, CrewAI, LangSmith, Langfuse |
+| 08 | [**End-to-End ML Platform**](./08-End-to-End-ML-Platform/) | Feature store, model registry, CI/CD, drift monitoring | Feast, MLflow, Evidently AI, FastAPI |
 
 ---
 
 ## 🛠️ Tech Stack
 
 - **Languages:** Python
-- **Frameworks:** LangChain, LangGraph, CrewAI
-- **AI/ML:** Transformers, GANs, LLMs
+- **Frameworks:** LangChain, LangGraph, CrewAI, FastAPI
+- **AI/ML:** Transformers, GANs, LLMs, Scikit-learn
+- **MLOps:** Feast, MLflow, Evidently AI, Docker
 - **Observability:** LangSmith, Langfuse
+- **CI/CD:** GitHub Actions
 - **Tools:** Jupyter Notebooks, Typer, Rich
 
 ## 📜 License

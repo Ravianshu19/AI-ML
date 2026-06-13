@@ -1,0 +1,59 @@
+# ─── End-to-End ML Platform Configuration ───
+
+project:
+  name: churn-prediction
+  description: "Customer churn prediction pipeline"
+  version: "1.0.0"
+
+data:
+  raw_path: "data/raw/customer_churn.csv"
+  processed_path: "data/processed/"
+  test_size: 0.2
+  random_state: 42
+
+feature_store:
+  repo_path: "feature_store/feature_repo"
+  provider: "local"
+  entity_name: "customer"
+  entity_join_key: "customer_id"
+
+training:
+  model_type: "random_forest"  # random_forest, gradient_boosting, logistic_regression
+  hyperparameters:
+    random_forest:
+      n_estimators: 200
+      max_depth: 10
+      min_samples_split: 5
+      min_samples_leaf: 2
+      random_state: 42
+    gradient_boosting:
+      n_estimators: 150
+      max_depth: 6
+      learning_rate: 0.1
+      random_state: 42
+    logistic_regression:
+      C: 1.0
+      max_iter: 1000
+      random_state: 42
+
+mlflow:
+  tracking_uri: "http://localhost:5000"
+  experiment_name: "churn-prediction"
+  model_name: "churn_classifier"
+  artifact_path: "model"
+
+serving:
+  host: "0.0.0.0"
+  port: 8000
+  model_stage: "Production"
+
+monitoring:
+  drift_threshold: 0.05
+  report_output_dir: "monitoring/reports"
+  schedule_minutes: 60
+  reference_data_path: "data/processed/reference.csv"
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1
