@@ -1,0 +1,27 @@
+# Online Learning
+river>=0.21.0
+
+# Batch Anomaly Detection (for comparison)
+scikit-learn>=1.5.0
+
+# Data Processing
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Streaming / Async
+asyncio-mqtt>=0.16.0
+websockets>=12.0
+
+# Visualization Dashboard
+streamlit>=1.36.0
+plotly>=5.22.0
+altair>=5.3.0
+
+# CLI & Output
+rich>=13.7.0
+typer>=0.12.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.8.0
+PyYAML>=6.0.0

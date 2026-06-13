@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.15.0
+    container_name: mlflow-server
+    ports:
+      - "5000:5000"
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlartifacts
+    volumes:
+      - mlflow_data:/mlflow
+    environment:
+      - MLFLOW_TRACKING_URI=http://localhost:5000
+
+  model-server:
+    build:
+      context: .
+      dockerfile: serving/Dockerfile
+    container_name: model-server
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - MODEL_NAME=churn_classifier
+      - MODEL_STAGE=Production
+    depends_on:
+      - mlflow
+
+volumes:
+  mlflow_data:

@@ -1,0 +1,171 @@
+# GitHub Actions CI/CD Pipeline for ML Model
+# Copy this file to .github/workflows/train_and_deploy.yml
+
+name: ML Pipeline — Train, Validate & Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'training/**'
+      - 'feature_store/**'
+      - 'config.yaml'
+  workflow_dispatch:
+    inputs:
+      model_type:
+        description: 'Model type to train'
+        required: false
+        default: 'random_forest'
+        type: choice
+        options:
+          - random_forest
+          - gradient_boosting
+          - logistic_regression
+
+env:
+  MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ─── Stage 1: Data Validation ────────────────────────────────────
+  validate-data:
+    name: 📋 Validate Data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate feature data
+        run: python -m feature_store.populate_features
+
+      - name: Run data quality checks
+        run: python -m monitoring.drift_detector --drift-level 0.0
+
+      - name: Upload data artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: training-data
+          path: data/processed/
+
+  # ─── Stage 2: Train Model ───────────────────────────────────────
+  train:
+    name: 🏋️ Train Model
+    needs: validate-data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download data
+        uses: actions/download-artifact@v4
+        with:
+          name: training-data
+          path: data/processed/
+
+      - name: Train model
+        run: |
+          MODEL_TYPE=${{ github.event.inputs.model_type || 'random_forest' }}
+          python -m training.train --model-type $MODEL_TYPE --register
+
+      - name: Upload model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-artifacts
+          path: artifacts/
+
+  # ─── Stage 3: Evaluate & Promote ────────────────────────────────
+  evaluate:
+    name: 📈 Evaluate & Promote
+    needs: train
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Compare runs and promote best
+        run: python -m training.evaluate --promote-best
+
+  # ─── Stage 4: Deploy ────────────────────────────────────────────
+  deploy:
+    name: 🚀 Deploy Model Server
+    needs: evaluate
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t churn-predictor:latest -f serving/Dockerfile .
+
+      - name: Tag for registry
+        run: |
+          docker tag churn-predictor:latest \
+            ${{ secrets.DOCKER_REGISTRY }}/churn-predictor:${{ github.sha }}
+          docker tag churn-predictor:latest \
+            ${{ secrets.DOCKER_REGISTRY }}/churn-predictor:latest
+
+      - name: Push to registry
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_REGISTRY }}/churn-predictor:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_REGISTRY }}/churn-predictor:latest
+
+      - name: Deploy to server
+        run: |
+          echo "🚀 Deploying model server..."
+          # Replace with your deployment command:
+          # kubectl apply -f k8s/deployment.yaml
+          # OR: docker compose up -d model-server
+          echo "✅ Deployment complete"
+
+  # ─── Stage 5: Post-Deploy Monitoring ────────────────────────────
+  monitor:
+    name: 📡 Post-Deploy Monitoring
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download data
+        uses: actions/download-artifact@v4
+        with:
+          name: training-data
+          path: data/processed/
+
+      - name: Run drift monitoring
+        run: python -m monitoring.drift_detector --drift-level 0.05 --output monitoring/reports/
+
+      - name: Upload monitoring reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitoring-reports
+          path: monitoring/reports/

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "agentic-research-workflow"
+version = "1.0.0"
+description = "Multi-step research agent with LangGraph, tool calling, and observability"
+requires-python = ">=3.11"
+readme = "README.md"
+
+[project.scripts]
+research = "src.main:app"
+
+[tool.setuptools.packages.find]
+where = ["."]
